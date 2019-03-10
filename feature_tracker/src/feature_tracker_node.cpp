@@ -15,7 +15,7 @@ vector<uchar> r_status;
 vector<float> r_err;
 queue<sensor_msgs::ImageConstPtr> img_buf;
 
-ros::Publisher pub_img,pub_match;
+ros::Publisher pub_img,pub_match,pub_dis;
 ros::Publisher pub_restart;
 
 FeatureTracker trackerData[NUM_OF_CAM];
@@ -146,7 +146,7 @@ void img_callback(const sensor_msgs::ImageConstPtr &img_msg)
                     geometry_msgs::Point32 pd;
                     pd.x = cur_pts[j].x;
                     pd.y = cur_pts[j].y;
-                    dp.z = 1;
+                    pd.z = 1;
 
                     feature_points->points.push_back(p);
                     feature_dis->points.push_back(pd);

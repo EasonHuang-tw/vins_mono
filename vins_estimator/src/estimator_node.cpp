@@ -14,7 +14,8 @@
 
 
 Estimator estimator;
-
+ros::Publisher bg_pub;
+ros::Publisher ba_pub;
 std::condition_variable con;
 double current_time = -1;
 queue<sensor_msgs::ImuConstPtr> imu_buf;
@@ -79,6 +80,7 @@ void predict(const sensor_msgs::ImuConstPtr &imu_msg)
 
 void update()
 {
+	geometry_msgs::Point ba,bg;
     TicToc t_predict;
     latest_time = current_time;
     tmp_P = estimator.Ps[WINDOW_SIZE];
@@ -88,7 +90,14 @@ void update()
     tmp_Bg = estimator.Bgs[WINDOW_SIZE];
     acc_0 = estimator.acc_0;
     gyr_0 = estimator.gyr_0;
-
+	ba.x = tmp_Ba[0];
+	ba.y = tmp_Ba[1];
+	ba.z = tmp_Ba[2];
+	bg.x = tmp_Bg[0];
+	bg.y = tmp_Bg[1];
+	bg.z = tmp_Bg[2];
+	bg_pub.publish(bg);
+	ba_pub.publish(ba);
     queue<sensor_msgs::ImuConstPtr> tmp_imu_buf = imu_buf;
     for (sensor_msgs::ImuConstPtr tmp_imu_msg; !tmp_imu_buf.empty(); tmp_imu_buf.pop())
         predict(tmp_imu_buf.front());
@@ -356,7 +365,8 @@ int main(int argc, char **argv)
     ros::Subscriber sub_image = n.subscribe("/feature_tracker/feature", 20, feature_callback);
     ros::Subscriber sub_restart = n.subscribe("/feature_tracker/restart", 20, restart_callback);
     ros::Subscriber sub_relo_points = n.subscribe("/pose_graph/match_points", 20, relocalization_callback);
-
+	bg_pub = n.advertise<geometry_msgs::Point>("gyro_bias",10);
+	ba_pub = n.advertise<geometry_msgs::Point>("acc_bias",10);
     std::thread measurement_process{process};
     ros::spin();
 

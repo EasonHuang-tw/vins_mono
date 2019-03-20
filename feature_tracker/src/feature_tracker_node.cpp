@@ -15,7 +15,7 @@ vector<uchar> r_status;
 vector<float> r_err;
 queue<sensor_msgs::ImageConstPtr> img_buf;
 
-ros::Publisher pub_img,pub_match,pub_dis;
+ros::Publisher pub_img,pub_match;
 ros::Publisher pub_restart;
 
 FeatureTracker trackerData[NUM_OF_CAM];
@@ -114,7 +114,6 @@ void img_callback(const sensor_msgs::ImageConstPtr &img_msg)
    {
         pub_count++;
         sensor_msgs::PointCloudPtr feature_points(new sensor_msgs::PointCloud);
-        sensor_msgs::PointCloudPtr feature_dis(new sensor_msgs::PointCloud);
         sensor_msgs::ChannelFloat32 id_of_point;
         sensor_msgs::ChannelFloat32 u_of_point;
         sensor_msgs::ChannelFloat32 v_of_point;
@@ -123,8 +122,6 @@ void img_callback(const sensor_msgs::ImageConstPtr &img_msg)
 
         feature_points->header = img_msg->header;
         feature_points->header.frame_id = "world";
-        feature_dis->header = img_msg->header;
-        feature_dis->header.frame_id = "world";
 
         vector<set<int>> hash_ids(NUM_OF_CAM);
         for (int i = 0; i < NUM_OF_CAM; i++)
@@ -143,13 +140,8 @@ void img_callback(const sensor_msgs::ImageConstPtr &img_msg)
                     p.x = un_pts[j].x;
                     p.y = un_pts[j].y;
                     p.z = 1;
-                    geometry_msgs::Point32 pd;
-                    pd.x = cur_pts[j].x;
-                    pd.y = cur_pts[j].y;
-                    pd.z = 1;
 
                     feature_points->points.push_back(p);
-                    feature_dis->points.push_back(pd);
                     id_of_point.values.push_back(p_id * NUM_OF_CAM + i);
                     u_of_point.values.push_back(cur_pts[j].x);
                     v_of_point.values.push_back(cur_pts[j].y);
@@ -169,10 +161,8 @@ void img_callback(const sensor_msgs::ImageConstPtr &img_msg)
         {
             init_pub = 1;
         }
-        else{
-          pub_img.publish(feature_points);
-          pub_dis.publish(feature_dis);
-        }
+        else
+            pub_img.publish(feature_points);
 
         if (SHOW_TRACK)
         {
@@ -241,7 +231,6 @@ int main(int argc, char **argv)
     ros::Subscriber sub_img = n.subscribe(IMAGE_TOPIC, 100, img_callback);
 
     pub_img = n.advertise<sensor_msgs::PointCloud>("feature", 1000);
-    pub_dis = n.advertise<sensor_msgs::PointCloud>("feature_dis", 1000);
     pub_match = n.advertise<sensor_msgs::Image>("feature_img",1000);
     pub_restart = n.advertise<std_msgs::Bool>("restart",1000);
     /*

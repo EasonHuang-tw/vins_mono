@@ -1,8 +1,8 @@
 <launch>
-	<arg name="camera_config" value="MT9V034_VGA.json" /> <!-- Config file in camera_config_files folder of your camera. -->
+	<arg name="camera_config" value="AR0134_640x484.json" /> <!-- Config file in camera_config_files folder of your camera. -->
 	<arg name="serial_number" value="" /> <!-- Serial number of the camera in the form of "XXXX-XXXX-XXXX", leave it blank "" if there is only one camera. -->
-	<arg name="horizontal_flip" value="true" /> <!-- Flip image horizontally. -->
-	<arg name="vertical_flip" value="true" /> <!-- Flip image vertically. -->
+	<arg name="horizontal_flip" value="false" /> <!-- Flip image horizontally. -->
+	<arg name="vertical_flip" value="false" /> <!-- Flip image vertically. -->
 	<arg name="frame_id" value="camera" /> <!--Topic frame_id. -->
 
 	<node name="arducam_trigger_ros_node" pkg="arducam_usb2_ros" type="arducam_trigger_ros_node.py" output="screen">
@@ -13,7 +13,7 @@
 	    <param name="frame_id" value="$(arg frame_id)" />
 	</node>
 
-    <arg name="config_path" default = "$(find feature_tracker)/../config/realsense/diy.yaml" />
+    <arg name="config_path" default = "$(find feature_tracker)/../config/black_box/diy.yaml" />
 	  <arg name="vins_path" default = "$(find feature_tracker)/../config/../" />
     
     <node name="feature_tracker" pkg="feature_tracker" type="feature_tracker" output="log">
@@ -26,12 +26,5 @@
        <param name="vins_folder" type="string" value="$(arg vins_path)" />
     </node>
 
-    <node name="pose_graph" pkg="pose_graph" type="pose_graph" output="screen">
-        <param name="config_file" type="string" value="$(arg config_path)" />
-        <param name="visualization_shift_x" type="int" value="0" />
-        <param name="visualization_shift_y" type="int" value="0" />
-        <param name="skip_cnt" type="int" value="0" />
-        <param name="skip_dis" type="double" value="0" />
-    </node>
 
 </launch>
